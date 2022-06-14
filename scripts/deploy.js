@@ -1,5 +1,8 @@
 // This is a script for deploying your contracts. You can adapt it to deploy
 // yours, or create new ones.
+
+const SUSHI_MINICHEF_ADDRESS = "0x0769fd68dFb93167989C6f7254cd0D766Fb2841F";
+
 async function main() {
   // This is just a convenience check
   if (network.name === "hardhat") {
@@ -19,17 +22,17 @@ async function main() {
 
   console.log("Account balance:", (await deployer.getBalance()).toString());
 
-  const Token = await ethers.getContractFactory("Token");
-  const token = await Token.deploy();
-  await token.deployed();
+  const LFProductFactory = await ethers.getContractFactory("LFProductFactory");
+  const factory = await LFProductFactory.deploy(SUSHI_MINICHEF_ADDRESS);
+  await factory.deployed();
 
-  console.log("Token address:", token.address);
+  console.log("Factory address:", factory.address);
 
   // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(token);
+  saveFrontendFiles(factory);
 }
 
-function saveFrontendFiles(token) {
+function saveFrontendFiles(factory) {
   const fs = require("fs");
   const contractsDir = __dirname + "/../frontend/src/contracts";
 
@@ -39,14 +42,39 @@ function saveFrontendFiles(token) {
 
   fs.writeFileSync(
     contractsDir + "/contract-address.json",
-    JSON.stringify({ Token: token.address }, undefined, 2)
+    JSON.stringify({ Factory: factory.address }, undefined, 2)
   );
 
-  const TokenArtifact = artifacts.readArtifactSync("Token");
+  const LFProductFactory = artifacts.readArtifactSync("LFProductFactory");
+  const LFERC20 = artifacts.readArtifactSync("LFERC20");
+  const LFProduct = artifacts.readArtifactSync("LFProduct");
+  const MiniChefV2 = artifacts.readArtifactSync("MiniChefV2");
+  const IUniswapV2Pair = artifacts.readArtifactSync("IUniswapV2Pair");
+  const IUniswapV2Factory = artifacts.readArtifactSync("IUniswapV2Factory");
 
   fs.writeFileSync(
-    contractsDir + "/Token.json",
-    JSON.stringify(TokenArtifact, null, 2)
+    contractsDir + "/LFProductFactory.json",
+    JSON.stringify(LFProductFactory, null, 2)
+  );
+  fs.writeFileSync(
+    contractsDir + "/LFERC20.json",
+    JSON.stringify(LFERC20, null, 2)
+  );
+  fs.writeFileSync(
+    contractsDir + "/LFProduct.json",
+    JSON.stringify(LFProduct, null, 2)
+  );
+  fs.writeFileSync(
+    contractsDir + "/MiniChefV2.json",
+    JSON.stringify(MiniChefV2, null, 2)
+  );
+  fs.writeFileSync(
+    contractsDir + "/IUniswapV2Pair.json",
+    JSON.stringify(IUniswapV2Pair, null, 2)
+  );
+  fs.writeFileSync(
+    contractsDir + "/IUniswapV2Factory.json",
+    JSON.stringify(IUniswapV2Factory, null, 2)
   );
 }
 
